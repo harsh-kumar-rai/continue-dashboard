@@ -7,12 +7,12 @@ import { STOCKS, generateOHLC } from "@/lib/mock-data"
 import { fmt, fmtPct } from "@/lib/format"
 
 const FACTORS = [
-  { f: "VALUE", ytd: 14.2, m1: 2.1, m3: 4.8, m12: 18.4, sharpe: 1.12 },
-  { f: "QUALITY", ytd: 18.7, m1: 1.4, m3: 5.2, m12: 22.1, sharpe: 1.34 },
-  { f: "MOMENTUM", ytd: 24.1, m1: 3.8, m3: 8.4, m12: 31.2, sharpe: 1.56 },
-  { f: "LOW VOL", ytd: 9.4, m1: 0.8, m3: 2.4, m12: 12.6, sharpe: 1.02 },
-  { f: "SIZE", ytd: 21.8, m1: 2.9, m3: 6.7, m12: 28.4, sharpe: 1.21 },
-  { f: "GROWTH", ytd: 16.4, m1: 1.9, m3: 4.2, m12: 19.8, sharpe: 1.18 },
+  { f: "VALUE", ytd: 0.142, m1: 0.021, m3: 0.048, m12: 0.184, sharpe: 1.12 },
+  { f: "QUALITY", ytd: 0.187, m1: 0.014, m3: 0.052, m12: 0.221, sharpe: 1.34 },
+  { f: "MOMENTUM", ytd: 0.241, m1: 0.038, m3: 0.084, m12: 0.312, sharpe: 1.56 },
+  { f: "LOW VOL", ytd: 0.094, m1: 0.008, m3: 0.024, m12: 0.126, sharpe: 1.02 },
+  { f: "SIZE", ytd: 0.218, m1: 0.029, m3: 0.067, m12: 0.284, sharpe: 1.21 },
+  { f: "GROWTH", ytd: 0.164, m1: 0.019, m3: 0.042, m12: 0.198, sharpe: 1.18 },
 ]
 
 const SIGNALS = [

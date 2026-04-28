@@ -7,34 +7,34 @@ import { generateOHLC, MACRO } from "@/lib/mock-data"
 import { fmt, fmtPct } from "@/lib/format"
 
 const FX = [
-  { sym: "USD/INR", value: 84.21, chg: 0.18, chgPct: 0.21 },
-  { sym: "EUR/INR", value: 91.42, chg: -0.12, chgPct: -0.13 },
-  { sym: "GBP/INR", value: 106.84, chg: 0.34, chgPct: 0.32 },
-  { sym: "JPY/INR", value: 0.5421, chg: -0.0018, chgPct: -0.33 },
-  { sym: "DXY", value: 105.42, chg: 0.31, chgPct: 0.30 },
-  { sym: "EUR/USD", value: 1.0842, chg: -0.0024, chgPct: -0.22 },
+  { sym: "USD/INR", value: 84.21, chg: 0.18, chgPct: 0.0021 },
+  { sym: "EUR/INR", value: 91.42, chg: -0.12, chgPct: -0.0013 },
+  { sym: "GBP/INR", value: 106.84, chg: 0.34, chgPct: 0.0032 },
+  { sym: "JPY/INR", value: 0.5421, chg: -0.0018, chgPct: -0.0033 },
+  { sym: "DXY", value: 105.42, chg: 0.31, chgPct: 0.0030 },
+  { sym: "EUR/USD", value: 1.0842, chg: -0.0024, chgPct: -0.0022 },
 ]
 
 const COMMODITIES = [
-  { sym: "GOLD MCX", value: 75240, chg: 184, chgPct: 0.25, unit: "₹/10g" },
-  { sym: "SILVER MCX", value: 92140, chg: -340, chgPct: -0.37, unit: "₹/kg" },
-  { sym: "CRUDE MCX", value: 6240, chg: -42, chgPct: -0.67, unit: "₹/bbl" },
-  { sym: "BRENT", value: 73.42, chg: -0.51, chgPct: -0.69, unit: "$/bbl" },
-  { sym: "WTI", value: 69.18, chg: -0.48, chgPct: -0.69, unit: "$/bbl" },
-  { sym: "COPPER", value: 814.5, chg: 4.2, chgPct: 0.52, unit: "₹/kg" },
-  { sym: "NATGAS MCX", value: 248.4, chg: 2.1, chgPct: 0.85, unit: "₹/MMBtu" },
-  { sym: "ALUMINUM", value: 234.8, chg: -1.4, chgPct: -0.59, unit: "₹/kg" },
+  { sym: "GOLD MCX", value: 75240, chg: 184, chgPct: 0.0025, unit: "₹/10g" },
+  { sym: "SILVER MCX", value: 92140, chg: -340, chgPct: -0.0037, unit: "₹/kg" },
+  { sym: "CRUDE MCX", value: 6240, chg: -42, chgPct: -0.0067, unit: "₹/bbl" },
+  { sym: "BRENT", value: 73.42, chg: -0.51, chgPct: -0.0069, unit: "$/bbl" },
+  { sym: "WTI", value: 69.18, chg: -0.48, chgPct: -0.0069, unit: "$/bbl" },
+  { sym: "COPPER", value: 814.5, chg: 4.2, chgPct: 0.0052, unit: "₹/kg" },
+  { sym: "NATGAS MCX", value: 248.4, chg: 2.1, chgPct: 0.0085, unit: "₹/MMBtu" },
+  { sym: "ALUMINUM", value: 234.8, chg: -1.4, chgPct: -0.0059, unit: "₹/kg" },
 ]
 
 const GLOBAL = [
-  { sym: "S&P 500", value: 5982.4, chg: 12.4, chgPct: 0.21 },
-  { sym: "NASDAQ", value: 19248.6, chg: 48.2, chgPct: 0.25 },
-  { sym: "DOW", value: 44120.4, chg: -84.2, chgPct: -0.19 },
-  { sym: "DAX", value: 19420.8, chg: 24.1, chgPct: 0.12 },
-  { sym: "FTSE 100", value: 8240.2, chg: -12.4, chgPct: -0.15 },
-  { sym: "NIKKEI", value: 38940.6, chg: 142.4, chgPct: 0.37 },
-  { sym: "HSI", value: 19840.2, chg: -84.6, chgPct: -0.42 },
-  { sym: "SHANGHAI", value: 3340.4, chg: 8.4, chgPct: 0.25 },
+  { sym: "S&P 500", value: 5982.4, chg: 12.4, chgPct: 0.0021 },
+  { sym: "NASDAQ", value: 19248.6, chg: 48.2, chgPct: 0.0025 },
+  { sym: "DOW", value: 44120.4, chg: -84.2, chgPct: -0.0019 },
+  { sym: "DAX", value: 19420.8, chg: 24.1, chgPct: 0.0012 },
+  { sym: "FTSE 100", value: 8240.2, chg: -12.4, chgPct: -0.0015 },
+  { sym: "NIKKEI", value: 38940.6, chg: 142.4, chgPct: 0.0037 },
+  { sym: "HSI", value: 19840.2, chg: -84.6, chgPct: -0.0042 },
+  { sym: "SHANGHAI", value: 3340.4, chg: 8.4, chgPct: 0.0025 },
 ]
 
 const RATES = [

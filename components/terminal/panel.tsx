@@ -5,24 +5,26 @@ import type React from "react"
 interface PanelProps {
   title: string
   code?: string // mnemonic shown top-right e.g. "DES"
+  fkey?: string // alias for `code`, kept for backwards compatibility
   actions?: React.ReactNode
   children: React.ReactNode
   className?: string
   scroll?: boolean
 }
 
-export function Panel({ title, code, actions, children, className = "", scroll = true }: PanelProps) {
+export function Panel({ title, code, fkey, actions, children, className = "", scroll = true }: PanelProps) {
+  const mnemonic = code ?? fkey
   return (
-    <div className={`flex flex-col h-full bg-[var(--color-panel)] border border-[var(--color-border-strong)] ${className}`}>
+    <div className={`flex flex-col h-full min-h-0 bg-[var(--color-panel)] border border-[var(--color-border-strong)] ${className}`}>
       <div className="flex items-stretch h-[20px] bg-black border-b border-[var(--color-amber-dim)]">
         <div className="flex items-center px-2 bg-[var(--color-amber)] text-black text-[10px] font-bold tracking-widest">
           {title}
         </div>
         <div className="flex-1" />
         {actions && <div className="flex items-center gap-1 px-1">{actions}</div>}
-        {code && (
+        {mnemonic && (
           <div className="flex items-center px-2 text-[10px] text-[var(--color-mute)] border-l border-[var(--color-border)]">
-            {code}
+            {mnemonic}
           </div>
         )}
       </div>
@@ -38,6 +40,33 @@ export function PanelSection({ label, children }: { label: string; children: Rea
         {label}
       </div>
       <div>{children}</div>
+    </div>
+  )
+}
+
+// CSS-grid wrapper used by pages that lay out multiple panels with col-span / row-span.
+// `cols` controls the number of columns; rows are auto-sized to equal fractions.
+export function PanelGrid({
+  cols = 4,
+  className = "",
+  children,
+}: {
+  cols?: number
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      className={className}
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+        gridAutoRows: "minmax(0, 1fr)",
+        gap: 1,
+        background: "var(--color-border-strong)",
+      }}
+    >
+      {children}
     </div>
   )
 }

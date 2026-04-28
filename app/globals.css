@@ -28,6 +28,12 @@
   --color-mute: #808080;
   --color-mute-2: #4a4a4a;
 
+  /* Aliases used by some pages */
+  --color-bg: #000000;
+  --color-fg: #ffa500;
+  --color-panel-alt: #0a0a0a;
+  --color-muted: #808080;
+
   /* Typography */
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-sans: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;

@@ -343,6 +343,41 @@ export function getIndex(symbol: string): IndexQuote | undefined {
   return INDICES.find((i) => i.symbol.toUpperCase() === symbol.toUpperCase())
 }
 
+// ---- Aliases used by some pages ----
+// Deterministic string hash (used by visual mocks, e.g. correlation matrix)
+export function hashCode(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) {
+    h = (h << 5) - h + s.charCodeAt(i)
+    h |= 0
+  }
+  return Math.abs(h)
+}
+
+// Alias for genOHLC under a longer name used by some pages
+export const generateOHLC = genOHLC
+
+// STOCKS: a flat view of EQUITIES with field aliases used by screener / quant / portfolio.
+// `last`, `changePct`, `marketCap`, `rsi`, `high52w`, `low52w` map to the canonical
+// fields below. `changePct` stays a *fraction* so it composes with fmtPct().
+export const STOCKS = EQUITIES.map((e) => ({
+  ...e,
+  last: e.price,
+  changePct: e.ret1d,
+  marketCap: e.mcap, // in crore INR
+  rsi: e.rsi14,
+  high52w: e.high52,
+  low52w: e.low52,
+}))
+
+// Extend MACRO records with a few aliased keys used by the macro page.
+// We mutate-in-place so existing consumers (macro-snapshot) keep working.
+for (const m of MACRO as Array<MacroIndicator & { indicator?: string; prev?: number; period?: string }>) {
+  m.indicator = m.label
+  m.prev = m.value - m.change
+  m.period = m.asOf
+}
+
 // Sector aggregates
 export function sectorAggregates() {
   const map = new Map<Sector, { mcap: number; ret1d: number; n: number; vol: number }>()

@@ -173,7 +173,7 @@ export default function ScreenerPage() {
                   </td>
                   <td className="px-2 py-0.5 text-right tabular-nums">{(s.volume / 1e6).toFixed(2)}M</td>
                   <td className="px-2 py-0.5 text-right tabular-nums">
-                    {(s.marketCap / 1e7).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                    {s.marketCap.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
                   </td>
                   <td className="px-2 py-0.5 text-right tabular-nums">{fmt(s.pe, 1)}</td>
                   <td className="px-2 py-0.5 text-right tabular-nums">{fmt(s.pb, 2)}</td>
