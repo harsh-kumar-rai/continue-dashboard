@@ -190,6 +190,63 @@ export function genOHLC(symbol: string, days = 252): OHLCBar[] {
   return bars
 }
 
+// Generate intraday OHLCV history. `lookbackSessions` is the number of trading
+// sessions back from now; each session is approx 6.25h (NSE 9:15-15:30 IST = 375 minutes).
+// `intervalMin` controls bar spacing in minutes (1, 5, 15, 60, etc.).
+export function genIntraday(symbol: string, intervalMin: number, lookbackSessions: number): OHLCBar[] {
+  const eq = EQUITIES.find((e) => e.symbol === symbol)
+  const idx = INDICES.find((i) => i.symbol === symbol)
+  const startPrice = eq?.price ?? idx?.value ?? 1000
+  const localRng = mulberry32(symbol.split("").reduce((a, c) => a + c.charCodeAt(0), 0) * 7919 + intervalMin)
+  const minutesPerSession = 375
+  const barsPerSession = Math.max(1, Math.floor(minutesPerSession / intervalMin))
+  const totalBars = barsPerSession * lookbackSessions
+
+  // walk back from "now" filling bars only inside a 9:15-15:30 IST session window
+  const bars: OHLCBar[] = []
+  // anchor end at most-recent close (today 15:30 IST or last-completed minute today)
+  const now = new Date()
+  // approximate session-end of "today" in IST seconds
+  const istOffsetMin = 5 * 60 + 30
+  const localOffsetMin = -now.getTimezoneOffset() // browser->UTC offset minutes
+  const istNowMin = Math.floor(now.getTime() / 60000) + (istOffsetMin - localOffsetMin)
+  const dayStartMin = Math.floor(istNowMin / 1440) * 1440
+  const sessionStartMin = dayStartMin + 9 * 60 + 15
+  const sessionEndMin = dayStartMin + 15 * 60 + 30
+  let cursorMin = Math.min(istNowMin, sessionEndMin)
+  // round down to interval boundary
+  cursorMin = Math.floor(cursorMin / intervalMin) * intervalMin
+
+  // priceWalk: drift slightly negative so 1Y vs intraday roughly match
+  let price = startPrice
+  const drift = -0.00002
+  const vol = 0.0035
+
+  // build bars going backwards, then reverse
+  let session = 0
+  while (bars.length < totalBars && session < lookbackSessions + 5) {
+    const ssStart = sessionStartMin - session * 1440
+    const ssEnd = sessionEndMin - session * 1440
+    let mins = Math.min(cursorMin, ssEnd)
+    while (mins >= ssStart && bars.length < totalBars) {
+      const t = mins * 60 - (istOffsetMin - localOffsetMin) * 60 // back to UTC seconds
+      const r = drift + (localRng() - 0.5) * vol * 2
+      const o = price
+      const c = o * (1 + r)
+      const h = Math.max(o, c) * (1 + localRng() * vol * 0.5)
+      const l = Math.min(o, c) * (1 - localRng() * vol * 0.5)
+      const baseVol = (eq?.avgVol20 ?? 5_00_000) / barsPerSession
+      const v = Math.floor(baseVol * (0.4 + localRng() * 1.2))
+      bars.push({ t, o, h, l, c, v })
+      price = c
+      mins -= intervalMin
+    }
+    session++
+    cursorMin = sessionEndMin - session * 1440
+  }
+  return bars.reverse()
+}
+
 // Option chain generator
 export function genOptionChain(underlying: string): OptionExpiry {
   const u = INDICES.find((i) => i.symbol === underlying) ?? INDICES[0]
@@ -341,6 +398,41 @@ export function getEquity(symbol: string): Equity | undefined {
 
 export function getIndex(symbol: string): IndexQuote | undefined {
   return INDICES.find((i) => i.symbol.toUpperCase() === symbol.toUpperCase())
+}
+
+// ---- Aliases used by some pages ----
+// Deterministic string hash (used by visual mocks, e.g. correlation matrix)
+export function hashCode(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) {
+    h = (h << 5) - h + s.charCodeAt(i)
+    h |= 0
+  }
+  return Math.abs(h)
+}
+
+// Alias for genOHLC under a longer name used by some pages
+export const generateOHLC = genOHLC
+
+// STOCKS: a flat view of EQUITIES with field aliases used by screener / quant / portfolio.
+// `last`, `changePct`, `marketCap`, `rsi`, `high52w`, `low52w` map to the canonical
+// fields below. `changePct` stays a *fraction* so it composes with fmtPct().
+export const STOCKS = EQUITIES.map((e) => ({
+  ...e,
+  last: e.price,
+  changePct: e.ret1d,
+  marketCap: e.mcap, // in crore INR
+  rsi: e.rsi14,
+  high52w: e.high52,
+  low52w: e.low52,
+}))
+
+// Extend MACRO records with a few aliased keys used by the macro page.
+// We mutate-in-place so existing consumers (macro-snapshot) keep working.
+for (const m of MACRO as Array<MacroIndicator & { indicator?: string; prev?: number; period?: string }>) {
+  m.indicator = m.label
+  m.prev = m.value - m.change
+  m.period = m.asOf
 }
 
 // Sector aggregates

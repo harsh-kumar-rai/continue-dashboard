@@ -77,3 +77,18 @@ export function arrow(n: number): string {
   if (n < 0) return "▼"
   return "▬"
 }
+
+// Aliases used by some pages
+export const fmt = fmtNum
+
+// Format a raw INR amount with the ₹ symbol and Indian numerals.
+// Supports negative values and scales to L / Cr.
+export function fmtINR(n: number): string {
+  if (!isFinite(n)) return "—"
+  const sign = n < 0 ? "-" : ""
+  const a = Math.abs(n)
+  if (a >= 1e7) return `${sign}₹${(a / 1e7).toFixed(2)}Cr`
+  if (a >= 1e5) return `${sign}₹${(a / 1e5).toFixed(2)}L`
+  if (a >= 1e3) return `${sign}₹${a.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`
+  return `${sign}₹${a.toFixed(2)}`
+}

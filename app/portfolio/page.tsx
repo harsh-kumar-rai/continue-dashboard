@@ -34,7 +34,7 @@ export default function PortfolioPage() {
       const value = h.qty * ltp
       const cost = h.qty * h.avgPrice
       const pnl = value - cost
-      const pnlPct = (pnl / cost) * 100
+      const pnlPct = pnl / cost
       const dayPnl = h.qty * (s.last - s.prevClose)
       return { ...h, name: s.name, sector: s.sector, ltp, value, cost, pnl, pnlPct, dayPnl, change: s.changePct }
     }).filter(Boolean) as Array<Holding & {
@@ -47,7 +47,7 @@ export default function PortfolioPage() {
     const cost = rows.reduce((a, r) => a + r.cost, 0)
     const pnl = value - cost
     const dayPnl = rows.reduce((a, r) => a + r.dayPnl, 0)
-    return { value, cost, pnl, pnlPct: (pnl / cost) * 100, dayPnl, dayPnlPct: (dayPnl / value) * 100 }
+    return { value, cost, pnl, pnlPct: pnl / cost, dayPnl, dayPnlPct: dayPnl / value }
   }, [rows])
 
   const sectorAlloc = useMemo(() => {
@@ -58,7 +58,7 @@ export default function PortfolioPage() {
 
   const attribution = useMemo(() => {
     return [...rows]
-      .map((r) => ({ sym: r.symbol, contrib: r.dayPnl, weight: (r.value / totals.value) * 100 }))
+      .map((r) => ({ sym: r.symbol, contrib: r.dayPnl, weight: r.value / totals.value }))
       .sort((a, b) => Math.abs(b.contrib) - Math.abs(a.contrib))
   }, [rows, totals])
 
@@ -127,7 +127,7 @@ export default function PortfolioPage() {
                       {fmtPct(r.change)}
                     </td>
                     <td className="px-2 py-0.5 text-right tabular-nums text-amber">
-                      {fmtPct((r.value / totals.value) * 100)}
+                      {fmtPct(r.value / totals.value)}
                     </td>
                   </tr>
                 ))}
@@ -139,15 +139,15 @@ export default function PortfolioPage() {
         <Panel title="SECTOR ALLOCATION" fkey="SEC" className="col-span-1">
           <div className="p-2 text-[11px] font-mono">
             {sectorAlloc.map(([sec, val]) => {
-              const pct = (val / totals.value) * 100
+              const frac = val / totals.value
               return (
                 <div key={sec} className="mb-1">
                   <div className="flex justify-between">
                     <span className="text-amber">{sec}</span>
-                    <span className="tabular-nums">{fmtPct(pct)}</span>
+                    <span className="tabular-nums">{fmtPct(frac)}</span>
                   </div>
                   <div className="h-1.5 bg-bg border border-border">
-                    <div className="h-full bg-amber" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-amber" style={{ width: `${frac * 100}%` }} />
                   </div>
                 </div>
               )

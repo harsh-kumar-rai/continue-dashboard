@@ -26,7 +26,7 @@ export function TopBar() {
   return (
     <div className="bb-chrome flex items-stretch border-b border-[var(--color-amber)] bg-black h-[24px]">
       <div className="flex items-center bg-[var(--color-amber)] text-black px-2 font-bold text-[11px] tracking-wider">
-        DALAL <span className="text-black/70 ml-1">TERMINAL</span>
+        BETAGEN
       </div>
       <div className="flex items-center px-2 text-[10px] text-[var(--color-mute)] border-r border-[var(--color-border)]">
         IND

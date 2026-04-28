@@ -1,10 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import type { Equity } from "@/lib/types"
 import { Panel, KV, PanelSection } from "@/components/terminal/panel"
 import { PriceChart } from "@/components/charts/price-chart"
-import { Sparkline } from "@/components/charts/sparkline"
+import { ChartWorkbench } from "@/components/charts/chart-workbench"
 import { genOHLC, NEWS, CORP_ACTIONS } from "@/lib/mock-data"
 import { fmtNum, fmtPct, fmtMcap, fmtVol, dirColor, fmtTime } from "@/lib/format"
 import { PanelGroup, Panel as RPanel, PanelResizeHandle } from "react-resizable-panels"
@@ -82,44 +82,10 @@ export function DesTab({ eq }: { eq: Equity }) {
 }
 
 export function ChartTab({ eq }: { eq: Equity }) {
-  const [tf, setTf] = useState<"1M" | "3M" | "6M" | "1Y">("1Y")
-  const [type, setType] = useState<"candle" | "line">("candle")
-  const days = tf === "1M" ? 22 : tf === "3M" ? 66 : tf === "6M" ? 126 : 252
-  const bars = useMemo(() => genOHLC(eq.symbol, days), [eq.symbol, days])
-
-  return (
-    <Panel
-      title="ADVANCED CHART"
-      code="GIP"
-      actions={
-        <div className="flex">
-          {(["1M", "3M", "6M", "1Y"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTf(t)}
-              className={`px-2 text-[10px] font-bold ${tf === t ? "bg-[var(--color-amber)] text-black" : "text-[var(--color-mute)]"}`}
-            >
-              {t}
-            </button>
-          ))}
-          <span className="border-l border-[var(--color-border)] mx-1" />
-          {(["candle", "line"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setType(t)}
-              className={`px-2 text-[10px] font-bold uppercase ${type === t ? "bg-[var(--color-amber)] text-black" : "text-[var(--color-mute)]"}`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-      }
-    >
-      <div className="p-2">
-        <PriceChart bars={bars} type={type} height={420} />
-      </div>
-    </Panel>
-  )
+  // Use the full chart workbench (lightweight-charts powered).
+  // It provides timeframes, chart-type toggle, studies (SMA/EMA/VWAP/BB/RSI/MACD),
+  // compare-symbol overlay, crosshair sync, horizontal-line drawing and CSV export.
+  return <ChartWorkbench symbol={eq.symbol} initialTimeframe="1Y" initialType="candle" />
 }
 
 export function FundamentalsTab({ eq }: { eq: Equity }) {

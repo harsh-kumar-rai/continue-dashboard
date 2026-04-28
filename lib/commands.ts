@@ -23,6 +23,7 @@ export type Route =
   | { kind: "page"; path: string }
   | { kind: "stock"; symbol: string; tab: string }
   | { kind: "index"; symbol: string; tab: string }
+  | { kind: "chart"; symbol: string }
   | { kind: "unknown"; raw: string }
 
 export interface Suggestion {
@@ -101,6 +102,11 @@ export function parseCommand(raw: string): Route {
   const eq = EQUITIES.find((e) => e.symbol === sym)
   const idx = INDICES.find((i) => i.symbol === sym)
 
+  // CHART <GO> always opens the full-page chart workbench (works for both equities and indices).
+  if (func === "CHART" && (eq || idx)) {
+    return { kind: "chart", symbol: sym }
+  }
+
   if (cls === "INDEX" || (!cls && idx && !eq)) {
     if (idx) {
       const tab = INDEX_TABS[func] ?? "des"
@@ -132,14 +138,14 @@ export function suggest(input: string): Suggestion[] {
   for (const i of INDICES) {
     if (i.symbol.startsWith(q) || i.name.includes(q)) {
       out.push({ command: `${i.symbol} INDEX DES`, description: `${i.name} — DESCRIPTION`, category: "INDEX" })
-      out.push({ command: `${i.symbol} INDEX GIP`, description: `${i.name} — CHART`, category: "INDEX" })
+      out.push({ command: `${i.symbol} INDEX CHART`, description: `${i.name} — FULL CHART`, category: "INDEX" })
     }
   }
   // equities
   for (const e of EQUITIES) {
     if (e.symbol.startsWith(q) || e.name.includes(q)) {
       out.push({ command: `${e.symbol} IN EQUITY DES`, description: `${e.name} — DESCRIPTION`, category: "STOCK" })
-      out.push({ command: `${e.symbol} IN EQUITY GIP`, description: `${e.name} — CHART`, category: "STOCK" })
+      out.push({ command: `${e.symbol} IN EQUITY CHART`, description: `${e.name} — FULL CHART`, category: "STOCK" })
       out.push({ command: `${e.symbol} IN EQUITY OMON`, description: `${e.name} — OPTIONS`, category: "STOCK" })
     }
   }
@@ -155,6 +161,8 @@ export function routeToPath(route: Route): string {
       return `/stock/${route.symbol}?tab=${route.tab}`
     case "index":
       return `/index/${route.symbol}?tab=${route.tab}`
+    case "chart":
+      return `/chart/${route.symbol}`
     default:
       return "/"
   }
