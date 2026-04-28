@@ -1,0 +1,153 @@
+@import 'tailwindcss';
+
+@theme inline {
+  /* Bloomberg-classic palette */
+  --color-background: #000000;
+  --color-foreground: #ffa500;
+  --color-panel: #050505;
+  --color-panel-2: #0a0a0a;
+  --color-border: #1a1a1a;
+  --color-border-strong: #2a2a2a;
+
+  /* Brand amber */
+  --color-amber: #ffa500;
+  --color-amber-bright: #ffb84d;
+  --color-amber-dim: #b37300;
+
+  /* Status / direction */
+  --color-up: #00c853;
+  --color-down: #ff1744;
+  --color-flat: #808080;
+
+  /* Accents */
+  --color-cyan: #00e5ff;
+  --color-yellow: #ffeb3b;
+  --color-blue: #4fc3f7;
+  --color-magenta: #ff4081;
+  --color-white: #ffffff;
+  --color-mute: #808080;
+  --color-mute-2: #4a4a4a;
+
+  /* Typography */
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+}
+
+* {
+  border-color: var(--color-border);
+  outline-color: var(--color-amber);
+}
+
+html,
+body {
+  background: #000;
+  color: var(--color-amber);
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum', 'zero', 'ss01';
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  line-height: 1.25;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ALL CAPS uppercase tracker like Bloomberg */
+.bb-cap {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Hard, no rounded corners ever */
+.rounded,
+.rounded-sm,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+.rounded-full {
+  border-radius: 0 !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ffa500;
+}
+
+/* Selection */
+::selection {
+  background: #ffa500;
+  color: #000;
+}
+
+/* Focus visible */
+*:focus-visible {
+  outline: 1px solid #ffa500;
+  outline-offset: -1px;
+}
+
+/* Bloomberg style cell hover */
+.bb-row:hover {
+  background: #1a1200;
+}
+
+/* Blinking cursor for command line */
+@keyframes bb-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+.bb-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 11px;
+  background: #ffa500;
+  vertical-align: middle;
+  animation: bb-blink 1s steps(2) infinite;
+}
+
+/* Resizable panel handle */
+[data-panel-resize-handle-enabled] {
+  background: #1a1a1a;
+  transition: background 0s;
+}
+[data-panel-resize-handle-enabled]:hover,
+[data-panel-resize-handle-enabled][data-resize-handle-active] {
+  background: #ffa500;
+}
+
+/* Tabular grid */
+.bb-grid-line > * + * {
+  border-left: 1px solid #1a1a1a;
+}
+
+/* Numeric */
+.bb-num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Disable text selection for chrome (function bar etc.) */
+.bb-chrome {
+  user-select: none;
+}
