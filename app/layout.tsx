@@ -12,7 +12,7 @@ const plexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "DALAL TERMINAL // INDIA MARKETS",
+  title: "BETAGEN // INDIA MARKETS",
   description: "Bloomberg-class terminal for Indian securities. Power users only.",
   generator: "v0.app",
 }
