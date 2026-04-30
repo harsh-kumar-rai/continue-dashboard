@@ -157,3 +157,146 @@ body {
 .bb-chrome {
   user-select: none;
 }
+
+/* ------------------------------------------------------------------ */
+/* THEME VARIANTS                                                     */
+/* The TerminalSettingsProvider toggles `data-theme` on <html>.       */
+/* These selectors override the @theme tokens defined above so every  */
+/* component re-renders with the new palette automatically.            */
+/* ------------------------------------------------------------------ */
+
+/* GREEN-ON-BLACK — classic mainframe / Reuters Eikon vibe */
+html[data-theme='green'] {
+  --color-foreground: #00ff7f;
+  --color-amber: #00ff7f;
+  --color-amber-bright: #6cffaf;
+  --color-amber-dim: #007a3a;
+  --color-fg: #00ff7f;
+  ::selection {
+    background: #00ff7f;
+    color: #000;
+  }
+}
+html[data-theme='green'] body,
+html[data-theme='green'] {
+  color: #00ff7f;
+}
+html[data-theme='green'] ::selection {
+  background: #00ff7f;
+  color: #000;
+}
+html[data-theme='green'] ::-webkit-scrollbar-thumb:hover {
+  background: #00ff7f;
+}
+html[data-theme='green'] *:focus-visible {
+  outline-color: #00ff7f;
+}
+html[data-theme='green'] [data-panel-resize-handle-enabled]:hover,
+html[data-theme='green'] [data-panel-resize-handle-enabled][data-resize-handle-active] {
+  background: #00ff7f;
+}
+html[data-theme='green'] .bb-cursor {
+  background: #00ff7f;
+}
+html[data-theme='green'] .bb-row:hover {
+  background: #003318;
+}
+
+/* PAPER — high-contrast inverted theme for printing or daylight monitors */
+html[data-theme='paper'] {
+  --color-background: #f4f1ea;
+  --color-foreground: #111111;
+  --color-panel: #ffffff;
+  --color-panel-2: #f6f3ec;
+  --color-border: #d0cabe;
+  --color-border-strong: #a89e88;
+  --color-amber: #b35f00;
+  --color-amber-bright: #d97500;
+  --color-amber-dim: #f0c890;
+  --color-up: #008a3a;
+  --color-down: #c1121f;
+  --color-flat: #444;
+  --color-cyan: #006d77;
+  --color-yellow: #b58900;
+  --color-blue: #2a6f97;
+  --color-magenta: #a4133c;
+  --color-white: #111111;
+  --color-mute: #555;
+  --color-mute-2: #888;
+  --color-bg: #f4f1ea;
+  --color-fg: #111111;
+  --color-panel-alt: #f6f3ec;
+  --color-muted: #555;
+}
+html[data-theme='paper'] body,
+html[data-theme='paper'] {
+  background: #f4f1ea;
+  color: #111;
+}
+html[data-theme='paper'] ::-webkit-scrollbar-track {
+  background: #ece7da;
+}
+html[data-theme='paper'] ::-webkit-scrollbar-thumb {
+  background: #b9b09a;
+}
+html[data-theme='paper'] ::selection {
+  background: #b35f00;
+  color: #fff;
+}
+html[data-theme='paper'] *:focus-visible {
+  outline-color: #b35f00;
+}
+html[data-theme='paper'] [data-panel-resize-handle-enabled] {
+  background: #d0cabe;
+}
+html[data-theme='paper'] [data-panel-resize-handle-enabled]:hover,
+html[data-theme='paper'] [data-panel-resize-handle-enabled][data-resize-handle-active] {
+  background: #b35f00;
+}
+html[data-theme='paper'] .bb-cursor {
+  background: #b35f00;
+}
+html[data-theme='paper'] .bb-row:hover {
+  background: #f0e8d4;
+}
+
+/* ------------------------------------------------------------------ */
+/* DENSITY VARIANTS                                                   */
+/* Drives global font-size (via :root) so terminal grids automatically */
+/* tighten or loosen.                                                  */
+/* ------------------------------------------------------------------ */
+
+html[data-density='compact'] {
+  font-size: 10px;
+}
+html[data-density='compact'] body {
+  line-height: 1.18;
+}
+html[data-density='compact'] .bb-row {
+  letter-spacing: 0;
+}
+
+html[data-density='comfortable'] {
+  font-size: 12px;
+}
+html[data-density='comfortable'] body {
+  line-height: 1.4;
+}
+html[data-density='comfortable'] table td,
+html[data-density='comfortable'] table th {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* Print stylesheet — collapse chrome and switch to high-contrast */
+@media print {
+  .bb-chrome,
+  [data-panel-resize-handle-enabled] {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}

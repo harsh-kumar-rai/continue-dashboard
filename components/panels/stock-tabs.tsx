@@ -5,7 +5,9 @@ import type { Equity } from "@/lib/types"
 import { Panel, KV, PanelSection } from "@/components/terminal/panel"
 import { PriceChart } from "@/components/charts/price-chart"
 import { ChartWorkbench } from "@/components/charts/chart-workbench"
-import { genOHLC, NEWS, CORP_ACTIONS } from "@/lib/mock-data"
+import { OIHeatmap } from "@/components/charts/oi-heatmap"
+import { genOHLC, NEWS, CORP_ACTIONS, EQUITIES } from "@/lib/mock-data"
+import { analystRecs } from "@/lib/mock-extra"
 import { fmtNum, fmtPct, fmtMcap, fmtVol, dirColor, fmtTime } from "@/lib/format"
 import { PanelGroup, Panel as RPanel, PanelResizeHandle } from "react-resizable-panels"
 
@@ -288,5 +290,206 @@ export function NewsTab({ eq }: { eq: Equity }) {
         ))}
       </div>
     </Panel>
+  )
+}
+
+export function OptionsTab({ eq }: { eq: Equity }) {
+  // Real per-symbol equity option chain (monthly expiry). The OIHeatmap routes
+  // through chainFor() so it picks an equity chain for stocks vs an index chain
+  // for indices.
+  return (
+    <Panel title={`${eq.symbol} OPTIONS — NEAREST EXPIRY`} code="OMON">
+      <OIHeatmap underlying={eq.symbol} />
+    </Panel>
+  )
+}
+
+const RATING_COLORS: Record<string, string> = {
+  "STRONG BUY": "text-[var(--color-up)]",
+  BUY: "text-[var(--color-up)]",
+  HOLD: "text-[var(--color-amber)]",
+  SELL: "text-[var(--color-down)]",
+  "STRONG SELL": "text-[var(--color-down)]",
+}
+
+export function AnalystTab({ eq }: { eq: Equity }) {
+  const { recs, consensus } = useMemo(() => analystRecs(eq.symbol), [eq.symbol])
+  const total =
+    consensus.strongBuy + consensus.buy + consensus.hold + consensus.sell + consensus.strongSell || 1
+  const upside = ((consensus.avgTarget - eq.price) / eq.price) || 0
+  const dist: Array<[string, number, string]> = [
+    ["STRONG BUY", consensus.strongBuy, "var(--color-up)"],
+    ["BUY", consensus.buy, "var(--color-up)"],
+    ["HOLD", consensus.hold, "var(--color-amber)"],
+    ["SELL", consensus.sell, "var(--color-down)"],
+    ["STRONG SELL", consensus.strongSell, "var(--color-down)"],
+  ]
+  return (
+    <PanelGroup direction="horizontal">
+      <RPanel defaultSize={36} minSize={24}>
+        <Panel title="ANALYST CONSENSUS" code="ANR">
+          <PanelSection label="SUMMARY">
+            <KV
+              k="RATING"
+              v={consensus.mean}
+              color={RATING_COLORS[consensus.mean] ?? "text-white"}
+            />
+            <KV k="ANALYSTS" v={total.toString()} />
+            <KV
+              k="AVG TARGET"
+              v={fmtNum(consensus.avgTarget, 0)}
+              color="text-[var(--color-amber-bright)]"
+            />
+            <KV
+              k="UPSIDE"
+              v={fmtPct(upside)}
+              color={dirColor(upside)}
+            />
+            <KV k="LAST PRICE" v={fmtNum(eq.price)} />
+          </PanelSection>
+          <PanelSection label="DISTRIBUTION">
+            {dist.map(([label, count, color]) => (
+              <div key={label} className="px-2 py-[3px] text-[11px]">
+                <div className="flex justify-between">
+                  <span className="text-[var(--color-mute)] tracking-wider">{label}</span>
+                  <span className="text-white bb-num">{count}</span>
+                </div>
+                <div className="h-[6px] bg-[var(--color-border)] mt-[2px]">
+                  <div
+                    className="h-full"
+                    style={{ width: `${(count / total) * 100}%`, background: color }}
+                  />
+                </div>
+              </div>
+            ))}
+          </PanelSection>
+        </Panel>
+      </RPanel>
+      <PanelResizeHandle className="w-px" />
+      <RPanel defaultSize={64}>
+        <Panel title="RECENT RATINGS" code="ANR">
+          <table className="w-full text-[11px]">
+            <thead className="bg-[var(--color-panel-2)] sticky top-0 text-[10px] text-[var(--color-mute)]">
+              <tr className="border-b border-[var(--color-border)]">
+                <th className="text-left px-2 py-1 font-normal">DATE</th>
+                <th className="text-left px-2 font-normal">BROKER</th>
+                <th className="text-left px-2 font-normal">RATING</th>
+                <th className="text-right px-2 font-normal">TARGET</th>
+                <th className="text-right px-2 font-normal">PREV</th>
+                <th className="text-right px-2 font-normal">UPSIDE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recs.map((r, i) => {
+                const ups = (r.target - eq.price) / eq.price
+                return (
+                  <tr key={i} className="bb-row border-b border-[var(--color-border)]">
+                    <td className="px-2 py-[3px] text-[var(--color-amber-bright)]">{r.date}</td>
+                    <td className="px-2 text-white">{r.broker}</td>
+                    <td className={`px-2 font-bold ${RATING_COLORS[r.rating] ?? "text-white"}`}>
+                      {r.rating}
+                    </td>
+                    <td className="px-2 text-right text-white bb-num">{fmtNum(r.target, 0)}</td>
+                    <td className="px-2 text-right text-[var(--color-mute)] bb-num">
+                      {r.prevTarget != null ? fmtNum(r.prevTarget, 0) : "—"}
+                    </td>
+                    <td className={`px-2 text-right bb-num ${dirColor(ups)}`}>{fmtPct(ups)}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </Panel>
+      </RPanel>
+    </PanelGroup>
+  )
+}
+
+export function ValuationTab({ eq }: { eq: Equity }) {
+  // Peer comparison on same sector (up to 8 peers).
+  const peers = useMemo(
+    () => EQUITIES.filter((e) => e.sector === eq.sector && e.symbol !== eq.symbol).slice(0, 7),
+    [eq.sector, eq.symbol],
+  )
+  const universe = [eq, ...peers]
+  const sectorAvg = (k: keyof Equity) =>
+    universe.reduce((s, e) => s + (e[k] as number), 0) / universe.length
+  const peAvg = sectorAvg("pe")
+  const pbAvg = sectorAvg("pb")
+  const peGap = (eq.pe - peAvg) / peAvg
+  const pbGap = (eq.pb - pbAvg) / pbAvg
+  return (
+    <PanelGroup direction="horizontal">
+      <RPanel defaultSize={36} minSize={24}>
+        <Panel title="VALUATION VS PEERS" code="RV">
+          <PanelSection label="VS SECTOR AVG">
+            <KV k="P/E" v={eq.pe.toFixed(2)} />
+            <KV k="P/E SECTOR" v={peAvg.toFixed(2)} color="text-[var(--color-mute)]" />
+            <KV
+              k="P/E PREMIUM"
+              v={fmtPct(peGap)}
+              color={dirColor(-peGap)}
+            />
+            <KV k="P/B" v={eq.pb.toFixed(2)} />
+            <KV k="P/B SECTOR" v={pbAvg.toFixed(2)} color="text-[var(--color-mute)]" />
+            <KV k="P/B PREMIUM" v={fmtPct(pbGap)} color={dirColor(-pbGap)} />
+          </PanelSection>
+          <PanelSection label="MARKET CAP">
+            <KV k={eq.symbol} v={fmtMcap(eq.mcap)} />
+            <KV
+              k="SECTOR MCAP"
+              v={fmtMcap(universe.reduce((s, e) => s + e.mcap, 0))}
+              color="text-[var(--color-amber-bright)]"
+            />
+          </PanelSection>
+        </Panel>
+      </RPanel>
+      <PanelResizeHandle className="w-px" />
+      <RPanel defaultSize={64}>
+        <Panel title={`PEERS — ${eq.sector}`} code="RV">
+          <table className="w-full text-[11px]">
+            <thead className="bg-[var(--color-panel-2)] sticky top-0 text-[10px] text-[var(--color-mute)]">
+              <tr className="border-b border-[var(--color-border)]">
+                <th className="text-left px-2 py-1 font-normal">SYMBOL</th>
+                <th className="text-right px-2 font-normal">PRICE</th>
+                <th className="text-right px-2 font-normal">1D %</th>
+                <th className="text-right px-2 font-normal">P/E</th>
+                <th className="text-right px-2 font-normal">P/B</th>
+                <th className="text-right px-2 font-normal">DIV %</th>
+                <th className="text-right px-2 font-normal">MCAP</th>
+                <th className="text-right px-2 font-normal">VOL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {universe.map((p) => (
+                <tr
+                  key={p.symbol}
+                  className={`bb-row border-b border-[var(--color-border)] ${
+                    p.symbol === eq.symbol ? "bg-[var(--color-amber-dim)]/20" : ""
+                  }`}
+                >
+                  <td className="px-2 py-[3px] text-[var(--color-amber-bright)] font-bold">
+                    {p.symbol}
+                  </td>
+                  <td className="px-2 text-right text-white bb-num">{fmtNum(p.price)}</td>
+                  <td className={`px-2 text-right bb-num ${dirColor(p.ret1d)}`}>
+                    {fmtPct(p.ret1d)}
+                  </td>
+                  <td className="px-2 text-right text-white bb-num">{p.pe.toFixed(2)}</td>
+                  <td className="px-2 text-right text-white bb-num">{p.pb.toFixed(2)}</td>
+                  <td className="px-2 text-right text-[var(--color-cyan)] bb-num">
+                    {p.divYield.toFixed(2)}%
+                  </td>
+                  <td className="px-2 text-right text-white bb-num">{fmtMcap(p.mcap)}</td>
+                  <td className="px-2 text-right text-[var(--color-mute)] bb-num">
+                    {fmtVol(p.volume)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Panel>
+      </RPanel>
+    </PanelGroup>
   )
 }

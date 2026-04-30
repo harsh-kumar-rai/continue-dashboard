@@ -1,11 +1,12 @@
 "use client"
 
 import { useMemo } from "react"
-import { genOptionChain } from "@/lib/mock-data"
+import { chainFor } from "@/lib/mock-extra"
 import { fmtNum, fmtVol } from "@/lib/format"
 
 export function OIHeatmap({ underlying }: { underlying: string }) {
-  const chain = useMemo(() => genOptionChain(underlying), [underlying])
+  // Resolve to either an index chain (weekly) or an equity chain (monthly).
+  const chain = useMemo(() => chainFor(underlying), [underlying])
   const spot = chain.spot
   const maxOI = Math.max(...chain.rows.flatMap((r) => [r.ce.oi, r.pe.oi]))
 

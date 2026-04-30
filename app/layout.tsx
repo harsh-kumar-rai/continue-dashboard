@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { IBM_Plex_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { TerminalShell } from "@/components/terminal/shell"
+import { TerminalSettingsProvider } from "@/lib/terminal-settings"
 import "./globals.css"
 
 const plexMono = IBM_Plex_Mono({
@@ -32,7 +33,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plexMono.variable} bg-background`}>
       <body className="font-mono antialiased bg-black text-[var(--color-amber)]">
-        <TerminalShell>{children}</TerminalShell>
+        <TerminalSettingsProvider>
+          <TerminalShell>{children}</TerminalShell>
+        </TerminalSettingsProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
