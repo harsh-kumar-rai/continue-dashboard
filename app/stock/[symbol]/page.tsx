@@ -10,9 +10,10 @@ import {
   EarningsTab,
   HoldersTab,
   NewsTab,
+  OptionsTab,
+  AnalystTab,
+  ValuationTab,
 } from "@/components/panels/stock-tabs"
-import { Panel } from "@/components/terminal/panel"
-import { OIHeatmap } from "@/components/charts/oi-heatmap"
 import { getEquity } from "@/lib/mock-data"
 
 export default function StockPage({ params }: { params: Promise<{ symbol: string }> }) {
@@ -38,11 +39,9 @@ export default function StockPage({ params }: { params: Promise<{ symbol: string
         {tab === "earnings" && <EarningsTab eq={eq} />}
         {tab === "holders" && <HoldersTab eq={eq} />}
         {tab === "news" && <NewsTab eq={eq} />}
-        {tab === "options" && (
-          <Panel title={`${eq.symbol} OPTIONS — NEAREST EXPIRY`} code="OMON">
-            <OIHeatmap underlying="NIFTY" />
-          </Panel>
-        )}
+        {tab === "options" && <OptionsTab eq={eq} />}
+        {tab === "analyst" && <AnalystTab eq={eq} />}
+        {tab === "valuation" && <ValuationTab eq={eq} />}
       </div>
     </div>
   )

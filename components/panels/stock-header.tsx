@@ -11,6 +11,8 @@ export function StockHeader({ eq, tab, onTab }: { eq: Equity; tab: string; onTab
     ["fundamentals", "FA", "FUNDAMENTALS"],
     ["earnings", "EE", "EARNINGS"],
     ["options", "OMON", "OPTIONS"],
+    ["analyst", "ANR", "ANALYST"],
+    ["valuation", "RV", "REL VALUE"],
     ["holders", "HOLD", "HOLDINGS"],
     ["news", "CN", "NEWS"],
   ]

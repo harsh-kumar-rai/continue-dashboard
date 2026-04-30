@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { INDICES } from "@/lib/mock-data"
 import { fmtNum, fmtPct, dirColor, arrow } from "@/lib/format"
+import { SettingsPopover } from "./settings-popover"
 
 const TICKER_INDICES = ["NIFTY", "BANKNIFTY", "FINNIFTY", "SENSEX", "INDIAVIX", "NIFTYIT", "NIFTYAUTO", "NIFTYMETAL"]
 
@@ -53,6 +54,7 @@ export function TopBar() {
         <span className="mx-2 text-[var(--color-amber)] font-bold">{time}</span>
         <span>IST</span>
       </div>
+      <SettingsPopover />
     </div>
   )
 }

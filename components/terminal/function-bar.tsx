@@ -2,14 +2,17 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { FUNCTION_KEYS } from "@/lib/commands"
+import { functionKeysFor } from "@/lib/commands"
 
 export function FunctionBar() {
   const pathname = usePathname()
+  const keys = functionKeysFor(pathname)
   return (
     <div className="bb-chrome flex items-stretch border-b border-[var(--color-border-strong)] bg-[var(--color-panel)] h-[22px]">
-      {FUNCTION_KEYS.map((f) => {
-        const active = pathname === f.path || (f.path !== "/" && pathname.startsWith(f.path))
+      {keys.map((f) => {
+        // Compare paths ignoring query string, since stock keys vary by ?tab=.
+        const linkPath = f.path.split("?")[0]
+        const active = pathname === linkPath || (linkPath !== "/" && pathname.startsWith(linkPath))
         return (
           <Link
             key={f.key}

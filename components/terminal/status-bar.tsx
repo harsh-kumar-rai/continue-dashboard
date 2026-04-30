@@ -1,11 +1,30 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { MACRO } from "@/lib/mock-data"
 import { fmtNum, dirColor, arrow } from "@/lib/format"
+import { fmtCountdown, getMarketStatus, type MarketSession } from "@/lib/terminal-settings"
 
 const KEYS = ["USD/INR", "10Y G-SEC", "BRENT CRUDE", "GOLD MCX", "FII NET (CASH)", "DII NET (CASH)", "INDIA VIX" as never]
 
+const SESSION_COLORS: Record<MarketSession, { dot: string; label: string }> = {
+  PRE: { dot: "var(--color-yellow)", label: "PRE-OPEN" },
+  OPEN: { dot: "var(--color-up)", label: "OPEN" },
+  POST: { dot: "var(--color-cyan)", label: "POST" },
+  CLOSED: { dot: "var(--color-down)", label: "CLOSED" },
+}
+
 export function StatusBar() {
+  const [status, setStatus] = useState(() => getMarketStatus())
+  const [latencyMs] = useState(() => 8 + Math.floor(Math.random() * 22))
+
+  useEffect(() => {
+    const id = setInterval(() => setStatus(getMarketStatus()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const sc = SESSION_COLORS[status.session]
+
   return (
     <div className="bb-chrome flex items-stretch border-t border-[var(--color-amber)] bg-[var(--color-panel)] h-[20px] text-[10px] overflow-hidden">
       <div className="flex items-center px-2 bg-[var(--color-amber)] text-black font-bold">STATUS</div>
@@ -24,7 +43,16 @@ export function StatusBar() {
         ))}
       </div>
       <div className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]">
-        MKT <span className="text-[var(--color-up)] mx-1">●</span> OPEN
+        NSE <span style={{ color: sc.dot }} className="mx-1">●</span>
+        <span className="text-[var(--color-amber)] font-bold tracking-widest">{sc.label}</span>
+        <span className="mx-2 text-[var(--color-mute-2)]">·</span>
+        <span className="text-[var(--color-mute)]">
+          {status.nextLabel} IN <span className="text-[var(--color-amber-bright)]">{fmtCountdown(status.msToNext)}</span>
+        </span>
+      </div>
+      <div className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]">
+        FEED <span className="text-[var(--color-up)] mx-1">●</span>
+        <span className="text-[var(--color-amber)] bb-num">{latencyMs}ms</span>
       </div>
       <div className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]">
         DATA: SIMULATED

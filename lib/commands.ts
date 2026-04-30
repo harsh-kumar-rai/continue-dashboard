@@ -42,11 +42,22 @@ const PAGE_MNEMONICS: Record<string, { path: string; desc: string }> = {
   SCRN: { path: "/screener", desc: "EQUITY SCREENER" },
   EQS: { path: "/screener", desc: "EQUITY SEARCH / SCREENER" },
   PORT: { path: "/portfolio", desc: "PORTFOLIO MANAGER" },
-  ECO: { path: "/macro", desc: "ECONOMICS / MACRO" },
+  ECO: { path: "/economic-calendar", desc: "ECONOMIC CALENDAR" },
+  MACRO: { path: "/macro", desc: "MACRO INDICATORS" },
   QUANT: { path: "/quant", desc: "QUANT LAB" },
   STRAT: { path: "/strategy", desc: "STRATEGY BUILDER (OPTIONS)" },
   DERIV: { path: "/derivatives", desc: "DERIVATIVES MONITOR" },
   HELP: { path: "/help", desc: "HELP" },
+  N: { path: "/news", desc: "NEWS READER" },
+  NEWS: { path: "/news", desc: "NEWS READER" },
+  ALRT: { path: "/alerts", desc: "ALERT BUILDER" },
+  ALERT: { path: "/alerts", desc: "ALERT BUILDER" },
+  FII: { path: "/fii-dii", desc: "FII / DII ACTIVITY" },
+  DII: { path: "/fii-dii", desc: "FII / DII ACTIVITY" },
+  HMAP: { path: "/heatmap", desc: "MARKET HEATMAP (TREEMAP)" },
+  HEAT: { path: "/heatmap", desc: "MARKET HEATMAP" },
+  W: { path: "/watchlist", desc: "WATCHLISTS" },
+  WATCH: { path: "/watchlist", desc: "WATCHLISTS" },
 }
 
 const STOCK_TABS: Record<string, string> = {
@@ -60,6 +71,7 @@ const STOCK_TABS: Record<string, string> = {
   HCPI: "history",
   HOLD: "holders",
   RV: "valuation",
+  ANR: "analyst",
 }
 
 const INDEX_TABS: Record<string, string> = {
@@ -168,8 +180,14 @@ export function routeToPath(route: Route): string {
   }
 }
 
-// Function key bar mappings
-export const FUNCTION_KEYS: Array<{ key: string; label: string; path: string }> = [
+export interface FunctionKey {
+  key: string
+  label: string
+  path: string
+}
+
+// Default function-key bar (used on most pages).
+export const FUNCTION_KEYS: FunctionKey[] = [
   { key: "F1", label: "HELP", path: "/help" },
   { key: "F2", label: "MKTS", path: "/markets" },
   { key: "F3", label: "EQTY", path: "/screener" },
@@ -180,6 +198,68 @@ export const FUNCTION_KEYS: Array<{ key: string; label: string; path: string }> 
   { key: "F8", label: "MACRO", path: "/macro" },
   { key: "F9", label: "NEWS", path: "/news" },
   { key: "F10", label: "ALERT", path: "/alerts" },
-  { key: "F11", label: "MENU", path: "/" },
-  { key: "F12", label: "TERM", path: "/" },
+  { key: "F11", label: "HMAP", path: "/heatmap" },
+  { key: "F12", label: "WATCH", path: "/watchlist" },
 ]
+
+// Context-aware F-keys for the stock detail page. Tabs swap via ?tab= query.
+function stockKeys(symbol: string): FunctionKey[] {
+  const base = `/stock/${encodeURIComponent(symbol)}`
+  return [
+    { key: "F1", label: "DES", path: `${base}?tab=des` },
+    { key: "F2", label: "GIP", path: `/chart/${encodeURIComponent(symbol)}` },
+    { key: "F3", label: "FA", path: `${base}?tab=fundamentals` },
+    { key: "F4", label: "OMON", path: `${base}?tab=options` },
+    { key: "F5", label: "ANR", path: `${base}?tab=analyst` },
+    { key: "F6", label: "RV", path: `${base}?tab=valuation` },
+    { key: "F7", label: "EE", path: `${base}?tab=earnings` },
+    { key: "F8", label: "HOLD", path: `${base}?tab=holders` },
+    { key: "F9", label: "CN", path: `${base}?tab=news` },
+    { key: "F10", label: "ALERT", path: "/alerts" },
+    { key: "F11", label: "HMAP", path: "/heatmap" },
+    { key: "F12", label: "WATCH", path: "/watchlist" },
+  ]
+}
+
+const PAGE_KEYS: Record<string, FunctionKey[]> = {
+  "/derivatives": [
+    { key: "F1", label: "HELP", path: "/help" },
+    { key: "F2", label: "OMON", path: "/derivatives" },
+    { key: "F3", label: "STRAT", path: "/strategy" },
+    { key: "F4", label: "FII", path: "/fii-dii" },
+    { key: "F5", label: "MKTS", path: "/markets" },
+    { key: "F6", label: "QUANT", path: "/quant" },
+    { key: "F7", label: "PORT", path: "/portfolio" },
+    { key: "F8", label: "MACRO", path: "/macro" },
+    { key: "F9", label: "NEWS", path: "/news" },
+    { key: "F10", label: "ALERT", path: "/alerts" },
+    { key: "F11", label: "HMAP", path: "/heatmap" },
+    { key: "F12", label: "WATCH", path: "/watchlist" },
+  ],
+  "/portfolio": [
+    { key: "F1", label: "HELP", path: "/help" },
+    { key: "F2", label: "MKTS", path: "/markets" },
+    { key: "F3", label: "EQTY", path: "/screener" },
+    { key: "F4", label: "DERIV", path: "/derivatives" },
+    { key: "F5", label: "STRAT", path: "/strategy" },
+    { key: "F6", label: "QUANT", path: "/quant" },
+    { key: "F7", label: "WATCH", path: "/watchlist" },
+    { key: "F8", label: "MACRO", path: "/macro" },
+    { key: "F9", label: "NEWS", path: "/news" },
+    { key: "F10", label: "ALERT", path: "/alerts" },
+    { key: "F11", label: "HMAP", path: "/heatmap" },
+    { key: "F12", label: "FII", path: "/fii-dii" },
+  ],
+}
+
+/**
+ * Resolve the F-key set for the active page. Falls back to FUNCTION_KEYS.
+ * For the stock detail page, returns symbol-aware keys.
+ */
+export function functionKeysFor(pathname: string): FunctionKey[] {
+  if (pathname.startsWith("/stock/")) {
+    const sym = decodeURIComponent(pathname.split("/")[2] ?? "")
+    if (sym) return stockKeys(sym)
+  }
+  return PAGE_KEYS[pathname] ?? FUNCTION_KEYS
+}
