@@ -15,15 +15,23 @@ const SESSION_COLORS: Record<MarketSession, { dot: string; label: string }> = {
 }
 
 export function StatusBar() {
-  const [status, setStatus] = useState(() => getMarketStatus())
-  const [latencyMs] = useState(() => 8 + Math.floor(Math.random() * 22))
+  // Both market session and latency depend on Date.now() / Math.random(), so they
+  // would produce different output on the server vs. the client and break
+  // hydration. Defer them to a post-mount effect and render placeholders for the
+  // first paint.
+  const [mounted, setMounted] = useState(false)
+  const [status, setStatus] = useState<ReturnType<typeof getMarketStatus> | null>(null)
+  const [latencyMs, setLatencyMs] = useState<number | null>(null)
 
   useEffect(() => {
+    setMounted(true)
+    setStatus(getMarketStatus())
+    setLatencyMs(8 + Math.floor(Math.random() * 22))
     const id = setInterval(() => setStatus(getMarketStatus()), 1000)
     return () => clearInterval(id)
   }, [])
 
-  const sc = SESSION_COLORS[status.session]
+  const sc = status ? SESSION_COLORS[status.session] : { dot: "var(--color-mute)", label: "—" }
 
   return (
     <div className="bb-chrome flex items-stretch border-t border-[var(--color-amber)] bg-[var(--color-panel)] h-[20px] text-[10px] overflow-hidden">
@@ -42,17 +50,30 @@ export function StatusBar() {
           </div>
         ))}
       </div>
-      <div className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]">
+      <div
+        className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]"
+        suppressHydrationWarning
+      >
         NSE <span style={{ color: sc.dot }} className="mx-1">●</span>
         <span className="text-[var(--color-amber)] font-bold tracking-widest">{sc.label}</span>
-        <span className="mx-2 text-[var(--color-mute-2)]">·</span>
-        <span className="text-[var(--color-mute)]">
-          {status.nextLabel} IN <span className="text-[var(--color-amber-bright)]">{fmtCountdown(status.msToNext)}</span>
-        </span>
+        {mounted && status && (
+          <>
+            <span className="mx-2 text-[var(--color-mute-2)]">·</span>
+            <span className="text-[var(--color-mute)]">
+              {status.nextLabel} IN{" "}
+              <span className="text-[var(--color-amber-bright)]">{fmtCountdown(status.msToNext)}</span>
+            </span>
+          </>
+        )}
       </div>
-      <div className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]">
+      <div
+        className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]"
+        suppressHydrationWarning
+      >
         FEED <span className="text-[var(--color-up)] mx-1">●</span>
-        <span className="text-[var(--color-amber)] bb-num">{latencyMs}ms</span>
+        <span className="text-[var(--color-amber)] bb-num">
+          {latencyMs != null ? `${latencyMs}ms` : "—"}
+        </span>
       </div>
       <div className="flex items-center px-2 border-l border-[var(--color-border)] text-[var(--color-mute)]">
         DATA: SIMULATED
