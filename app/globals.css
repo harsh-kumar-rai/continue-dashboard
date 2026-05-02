@@ -1,32 +1,32 @@
 @import 'tailwindcss';
 
 @theme inline {
-  /* Bloomberg-classic palette */
+  /* Bloomberg-classic palette — high-contrast, restrained */
   --color-background: #000000;
-  --color-foreground: #ffa500;
-  --color-panel: #050505;
-  --color-panel-2: #0a0a0a;
+  --color-foreground: #ffa028;
+  --color-panel: #000000;
+  --color-panel-2: #060606;
   --color-border: #1a1a1a;
-  --color-border-strong: #2a2a2a;
+  --color-border-strong: #262626;
 
-  /* Brand amber */
-  --color-amber: #ffa500;
-  --color-amber-bright: #ffb84d;
-  --color-amber-dim: #b37300;
+  /* Brand amber — Bloomberg signature */
+  --color-amber: #ffa028;
+  --color-amber-bright: #ffbf00;
+  --color-amber-dim: #8a5a14;
 
-  /* Status / direction */
-  --color-up: #00c853;
-  --color-down: #ff1744;
-  --color-flat: #808080;
+  /* Status / direction — neon green / sharp red, no muted variants */
+  --color-up: #20d069;
+  --color-down: #ff2e3c;
+  --color-flat: #707070;
 
-  /* Accents */
-  --color-cyan: #00e5ff;
-  --color-yellow: #ffeb3b;
-  --color-blue: #4fc3f7;
-  --color-magenta: #ff4081;
+  /* Constrained accents — only used to denote category, never decoration */
+  --color-cyan: #00d3e6;
+  --color-yellow: #ffd400;
+  --color-blue: #4fa8ff;
+  --color-magenta: #d946a0;
   --color-white: #ffffff;
   --color-mute: #808080;
-  --color-mute-2: #4a4a4a;
+  --color-mute-2: #3a3a3a;
 
   /* Aliases used by some pages */
   --color-bg: #000000;
@@ -56,11 +56,75 @@ body {
   font-feature-settings: 'tnum', 'zero', 'ss01';
   font-variant-numeric: tabular-nums;
   font-size: 11px;
-  line-height: 1.25;
+  line-height: 1.2;
   letter-spacing: 0;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  /* Bloomberg terminals render text raw / pixel-perfect, not smoothed */
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: geometricPrecision;
 }
+
+/* Raw colored-text utilities — REPLACE colored badge pills.
+   Bloomberg terminals never use background "pills" for tags — they color the
+   text itself directly against the black background. */
+.bb-tag {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  background: transparent !important;
+  padding: 0 !important;
+  display: inline-block;
+}
+.bb-src-bbg   { color: var(--color-amber-bright); }
+.bb-src-reut  { color: var(--color-cyan); }
+.bb-src-mint  { color: var(--color-yellow); }
+.bb-src-et    { color: var(--color-blue); }
+.bb-src-bse   { color: var(--color-magenta); }
+.bb-src-nse   { color: var(--color-up); }
+.bb-tag-res   { color: var(--color-cyan); }
+.bb-tag-mgmt  { color: var(--color-amber); }
+.bb-tag-reg   { color: var(--color-magenta); }
+.bb-tag-macro { color: var(--color-blue); }
+.bb-tag-fii   { color: var(--color-yellow); }
+.bb-tag-block { color: var(--color-up); }
+.bb-tag-cor   { color: var(--color-mute); }
+
+/* Command-line yellow market sector token (mimics the Bloomberg yellow keys) */
+.bb-token {
+  display: inline-block;
+  background: var(--color-yellow);
+  color: #000;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0 4px;
+  margin: 0 2px;
+  text-transform: uppercase;
+}
+.bb-token-go {
+  background: var(--color-up);
+  color: #000;
+}
+
+/* Continuous ticker-tape marquee */
+@keyframes bb-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.bb-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: bb-marquee 90s linear infinite;
+  will-change: transform;
+}
+.bb-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Color-coded function-key chips (Bloomberg keyboard convention) */
+.bb-fkey-yellow { background: var(--color-yellow); color: #000; }
+.bb-fkey-green  { background: var(--color-up);     color: #000; }
+.bb-fkey-red    { background: var(--color-down);   color: #000; }
+.bb-fkey-amber  { background: var(--color-amber);  color: #000; }
 
 /* ALL CAPS uppercase tracker like Bloomberg */
 .bb-cap {

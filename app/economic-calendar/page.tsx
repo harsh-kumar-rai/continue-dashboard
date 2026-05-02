@@ -137,11 +137,17 @@ export default function EconomicCalendar() {
                           <td className="px-2 text-right text-white bb-num">{ipo.size}</td>
                           <td className="px-2 text-right text-[var(--color-up)] bb-num">+{ipo.gmp}</td>
                           <td className="px-2">
-                            <span className={`px-1 text-[9px] font-bold ${
-                              ipo.status === "OPEN" ? "bg-[var(--color-up)] text-black" :
-                              ipo.status === "UPCOMING" ? "bg-[var(--color-amber)] text-black" :
-                              "bg-[var(--color-mute)] text-black"
-                            }`}>{ipo.status}</span>
+                            <span
+                              className={`bb-tag text-[9px] ${
+                                ipo.status === "OPEN"
+                                  ? "text-[var(--color-up)]"
+                                  : ipo.status === "UPCOMING"
+                                    ? "text-[var(--color-amber-bright)]"
+                                    : "text-[var(--color-mute)]"
+                              }`}
+                            >
+                              {ipo.status}
+                            </span>
                           </td>
                         </tr>
                       ))}

@@ -11,14 +11,23 @@ import { PanelGroup, Panel as RPanel, PanelResizeHandle } from "react-resizable-
 const SOURCES = ["ALL", "BBG", "REUT", "MINT", "ET", "BSE", "NSE"] as const
 const TAGS = ["ALL", "RES", "MGMT", "REG", "MACRO", "FII", "BLOCK", "COR"] as const
 
-const TAG_BG: Record<string, string> = {
-  RES: "bg-[var(--color-cyan)] text-black",
-  MGMT: "bg-[var(--color-amber)] text-black",
-  REG: "bg-[var(--color-magenta)] text-white",
-  MACRO: "bg-[var(--color-blue)] text-black",
-  FII: "bg-[var(--color-yellow)] text-black",
-  BLOCK: "bg-[var(--color-up)] text-black",
-  COR: "bg-[var(--color-mute)] text-black",
+// Source mnemonics & tags use raw colored TEXT — never pill backgrounds.
+const SRC_CLASS: Record<string, string> = {
+  BBG: "bb-src-bbg",
+  REUT: "bb-src-reut",
+  MINT: "bb-src-mint",
+  ET: "bb-src-et",
+  BSE: "bb-src-bse",
+  NSE: "bb-src-nse",
+}
+const TAG_CLASS: Record<string, string> = {
+  RES: "bb-tag-res",
+  MGMT: "bb-tag-mgmt",
+  REG: "bb-tag-reg",
+  MACRO: "bb-tag-macro",
+  FII: "bb-tag-fii",
+  BLOCK: "bb-tag-block",
+  COR: "bb-tag-cor",
 }
 
 export default function NewsPage() {
@@ -48,32 +57,42 @@ export default function NewsPage() {
             <Panel title="FILTERS" code="FILT">
               <PanelSection label="SOURCE">
                 <div className="grid grid-cols-2 gap-px bg-[var(--color-border)]">
-                  {SOURCES.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setSource(s)}
-                      className={`px-2 py-[3px] text-[10px] tracking-widest text-left ${
-                        source === s ? "bg-[var(--color-amber)] text-black font-bold" : "bg-black text-[var(--color-amber)] hover:bg-[var(--color-amber-dim)]/30"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                  {SOURCES.map((s) => {
+                    const srcCls = SRC_CLASS[s] ?? "text-[var(--color-amber)]"
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setSource(s)}
+                        className={`px-2 py-[2px] text-[10px] tracking-widest text-left font-bold ${
+                          source === s
+                            ? "bg-[var(--color-amber)] text-black"
+                            : `bg-black ${srcCls} hover:bg-[var(--color-amber-dim)]/20`
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    )
+                  })}
                 </div>
               </PanelSection>
               <PanelSection label="TAG">
                 <div className="grid grid-cols-2 gap-px bg-[var(--color-border)]">
-                  {TAGS.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setTag(t)}
-                      className={`px-2 py-[3px] text-[10px] tracking-widest text-left ${
-                        tag === t ? "bg-[var(--color-amber)] text-black font-bold" : "bg-black text-[var(--color-amber)] hover:bg-[var(--color-amber-dim)]/30"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                  {TAGS.map((t) => {
+                    const tagCls = TAG_CLASS[t] ?? "text-[var(--color-amber)]"
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => setTag(t)}
+                        className={`px-2 py-[2px] text-[10px] tracking-widest text-left font-bold ${
+                          tag === t
+                            ? "bg-[var(--color-amber)] text-black"
+                            : `bg-black ${tagCls} hover:bg-[var(--color-amber-dim)]/20`
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    )
+                  })}
                 </div>
               </PanelSection>
               <PanelSection label="QUICK PRESETS">
@@ -117,23 +136,28 @@ export default function NewsPage() {
                 {filtered.length === 0 && (
                   <div className="p-6 text-center text-[var(--color-mute)] text-[11px] tracking-widest">NO RESULTS // ADJUST FILTERS // F1 FOR HELP</div>
                 )}
-                {filtered.map((n, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedIdx(i)}
-                    className={`w-full text-left bb-row px-2 py-1 text-[11px] ${
-                      i === selectedIdx ? "bg-[var(--color-amber-dim)]/30" : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 text-[10px] text-[var(--color-mute)]">
-                      <span>{fmtTime(n.t)}</span>
-                      <span className="text-[var(--color-amber-bright)] font-bold">{n.src}</span>
-                      {n.tag && <span className={`px-1 text-[9px] font-bold ${TAG_BG[n.tag]}`}>{n.tag}</span>}
-                      {n.sym && <span className="text-[var(--color-cyan)] font-bold">{n.sym}</span>}
-                    </div>
-                    <div className="text-white tracking-tight mt-[1px]">{n.headline}</div>
-                  </button>
-                ))}
+                {filtered.map((n, i) => {
+                  const srcCls = SRC_CLASS[n.src] ?? "text-[var(--color-amber-bright)]"
+                  const tagCls = n.tag ? TAG_CLASS[n.tag] ?? "text-[var(--color-mute)]" : ""
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedIdx(i)}
+                      className={`w-full text-left bb-row grid items-baseline gap-2 px-2 py-[2px] text-[11px] ${
+                        i === selectedIdx ? "bg-[var(--color-amber-dim)]/30" : ""
+                      }`}
+                      style={{ gridTemplateColumns: "60px 50px 1fr" }}
+                    >
+                      <span className="text-[var(--color-mute)] bb-num text-[10px]">{fmtTime(n.t)}</span>
+                      <span className={`${srcCls} font-bold tracking-wider text-[10px]`}>{n.src}</span>
+                      <span className="text-white truncate">
+                        {n.tag && <span className={`${tagCls} bb-tag mr-2 text-[9px]`}>[{n.tag}]</span>}
+                        {n.sym && <span className="text-[var(--color-cyan)] font-bold mr-1">{n.sym}</span>}
+                        {n.headline}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </Panel>
           </RPanel>
@@ -146,8 +170,18 @@ export default function NewsPage() {
                 <div className="p-3 text-[12px] text-white space-y-3">
                   <div className="text-[10px] text-[var(--color-mute)] flex items-center gap-2">
                     <span>{fmtTime(selected.t)}</span>
-                    <span className="text-[var(--color-amber-bright)] font-bold">{selected.src}</span>
-                    {selected.tag && <span className={`px-1 text-[9px] font-bold ${TAG_BG[selected.tag]}`}>{selected.tag}</span>}
+                    <span
+                      className={`${SRC_CLASS[selected.src] ?? "text-[var(--color-amber-bright)]"} font-bold tracking-wider`}
+                    >
+                      {selected.src}
+                    </span>
+                    {selected.tag && (
+                      <span
+                        className={`${TAG_CLASS[selected.tag] ?? "text-[var(--color-mute)]"} bb-tag text-[9px]`}
+                      >
+                        [{selected.tag}]
+                      </span>
+                    )}
                   </div>
                   <h2 className="text-[14px] font-bold text-[var(--color-amber-bright)] tracking-tight leading-snug">
                     {selected.headline}
