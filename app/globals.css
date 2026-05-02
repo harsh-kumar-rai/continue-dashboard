@@ -4,10 +4,19 @@
   /* Bloomberg-classic palette — high-contrast, restrained */
   --color-background: #000000;
   --color-foreground: #ffa028;
-  --color-panel: #000000;
-  --color-panel-2: #060606;
-  --color-border: #1a1a1a;
-  --color-border-strong: #262626;
+  /* Panel body uses Bloomberg's signature dark navy. The outer chrome
+     (top-bar, function-bar, command-line, status-bar) stays pure black —
+     navy is reserved for content panels and chart drawing surfaces. */
+  --color-panel: #07172e;
+  --color-panel-2: #0a1f3d;
+  --color-panel-deep: #050e1d;
+  --color-border: #102641;
+  --color-border-strong: #1c3a63;
+  /* Red identifier strip — Bloomberg uses a deep oxblood red on every panel
+     header that carries a security identifier or function-menu command. */
+  --color-strip: #a31328;
+  --color-strip-bright: #c8203b;
+  --color-strip-fg: #ffffff;
 
   /* Brand amber — Bloomberg signature */
   --color-amber: #ffa028;
@@ -30,8 +39,8 @@
 
   /* Aliases used by some pages */
   --color-bg: #000000;
-  --color-fg: #ffa500;
-  --color-panel-alt: #0a0a0a;
+  --color-fg: #ffa028;
+  --color-panel-alt: #0a1f3d;
   --color-muted: #808080;
 
   /* Typography */
@@ -126,6 +135,77 @@ body {
 .bb-fkey-red    { background: var(--color-down);   color: #000; }
 .bb-fkey-amber  { background: var(--color-amber);  color: #000; }
 
+/* Red identifier strip — Bloomberg's signature dark-red header bar.
+   Used on every panel that carries a security/function identifier and
+   numbered action menus (e.g. "94 Suggested Charts | 96 Actions | 97 Edit"). */
+.bb-strip {
+  background: var(--color-strip);
+  color: var(--color-strip-fg);
+  display: flex;
+  align-items: stretch;
+  height: 22px;
+  border-bottom: 1px solid var(--color-strip);
+  user-select: none;
+}
+.bb-strip-id {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+}
+.bb-strip-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  font-weight: 600;
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+}
+.bb-strip-action:hover {
+  background: var(--color-strip-bright);
+}
+.bb-strip-action .bb-strip-num {
+  color: #ffd400;
+  font-weight: 700;
+}
+.bb-strip-tail {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-amber-bright);
+}
+
+/* Bloomberg-style date input — red 1px border on navy with amber text */
+.bb-date {
+  background: transparent;
+  color: var(--color-amber-bright);
+  border: 1px solid var(--color-strip);
+  height: 18px;
+  padding: 0 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.bb-date:focus {
+  outline: 1px solid var(--color-amber);
+  outline-offset: -2px;
+}
+
+/* Tiny "GIP" / "OMON" footer mnemonic chips */
+.bb-footer-fn {
+  color: var(--color-amber-bright);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 /* ALL CAPS uppercase tracker like Bloomberg */
 .bb-cap {
   text-transform: uppercase;
@@ -150,13 +230,13 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: #050e1d;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: #1c3a63;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ffa500;
+  background: #ffa028;
 }
 
 /* Selection */
@@ -171,9 +251,9 @@ body {
   outline-offset: -1px;
 }
 
-/* Bloomberg style cell hover */
+/* Bloomberg style cell hover — subtle highlight on navy panel rows */
 .bb-row:hover {
-  background: #1a1200;
+  background: #112c50;
 }
 
 /* Blinking cursor for command line */

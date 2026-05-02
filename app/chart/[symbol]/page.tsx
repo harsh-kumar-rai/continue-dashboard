@@ -19,8 +19,9 @@ export default function ChartPage({ params }: { params: Promise<Params> }) {
   const idx = INDICES.find((i) => i.symbol === symbol)
 
   // Allow ?tf=...&type=... as initial state passed by command parser
-  const initialTimeframe = (sp.get("tf") as "1D" | "5D" | "1M" | "3M" | "6M" | "YTD" | "1Y" | "5Y" | "MAX" | null) ?? "1Y"
-  const initialType = (sp.get("type") as "candle" | "line" | "area" | "bar" | null) ?? "candle"
+  const initialTimeframe =
+    (sp.get("tf") as "1D" | "3D" | "1M" | "6M" | "YTD" | "1Y" | "5Y" | "MAX" | null) ?? "1Y"
+  const initialType = (sp.get("type") as "candle" | "line" | "area" | "bar" | null) ?? "line"
 
   // Build a small "summary strip" so the page also acts as a quick quote view.
   const summary = useMemo(() => {
