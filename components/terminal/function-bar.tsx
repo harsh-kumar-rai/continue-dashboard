@@ -4,6 +4,29 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { functionKeysFor } from "@/lib/commands"
 
+// Color convention modeled on the Bloomberg keyboard:
+//  - GREEN  : <GO> / execute / portfolio actions (Help in real terminal is green-ish)
+//  - YELLOW : market-sector keys (EQUITIES, MKTS, OMON, MACRO, etc. — load data)
+//  - RED    : alerts / cancel
+//  - AMBER  : default function keys (text + analytical functions)
+//  - WHITE  : reserved
+function chipFor(label: string): "yellow" | "green" | "red" | "amber" {
+  const yellow = ["MKTS", "EQTY", "OMON", "DERIV", "FA", "RV", "DES", "GIP", "EE", "ANR", "HOLD", "CN", "MEMB"]
+  const green = ["HELP", "PORT"]
+  const red = ["ALERT"]
+  if (yellow.includes(label)) return "yellow"
+  if (green.includes(label)) return "green"
+  if (red.includes(label)) return "red"
+  return "amber"
+}
+
+const CHIP_CLASSES: Record<"yellow" | "green" | "red" | "amber", string> = {
+  yellow: "bg-[var(--color-yellow)] text-black",
+  green: "bg-[var(--color-up)] text-black",
+  red: "bg-[var(--color-down)] text-black",
+  amber: "bg-[var(--color-amber-dim)] text-black",
+}
+
 export function FunctionBar() {
   const pathname = usePathname()
   const keys = functionKeysFor(pathname)
@@ -12,17 +35,34 @@ export function FunctionBar() {
       {keys.map((f) => {
         // Compare paths ignoring query string, since stock keys vary by ?tab=.
         const linkPath = f.path.split("?")[0]
-        const active = pathname === linkPath || (linkPath !== "/" && pathname.startsWith(linkPath))
+        const active =
+          pathname === linkPath || (linkPath !== "/" && pathname.startsWith(linkPath))
+        const chip = chipFor(f.label)
         return (
           <Link
             key={f.key}
             href={f.path}
-            className={`flex items-center px-2 gap-1 text-[10px] border-r border-[var(--color-border)] hover:bg-[var(--color-amber-dim)]/30 ${
-              active ? "bg-[var(--color-amber)] text-black" : "text-[var(--color-amber)]"
+            className={`flex items-stretch text-[10px] border-r border-[var(--color-border)] hover:bg-[var(--color-amber-dim)]/30 ${
+              active ? "bg-[var(--color-amber-dim)]/40" : ""
             }`}
+            title={`${f.key} — ${f.label}`}
           >
-            <span className={active ? "text-black" : "text-[var(--color-mute)]"}>{f.key}</span>
-            <span className="font-bold tracking-wider">{f.label}</span>
+            <span
+              className={`flex items-center px-[5px] font-bold tracking-tight ${
+                active
+                  ? "bg-[var(--color-amber)] text-black"
+                  : CHIP_CLASSES[chip]
+              }`}
+            >
+              {f.key}
+            </span>
+            <span
+              className={`flex items-center px-2 font-bold tracking-wider ${
+                active ? "text-[var(--color-amber-bright)]" : "text-[var(--color-amber)]"
+              }`}
+            >
+              {f.label}
+            </span>
           </Link>
         )
       })}
