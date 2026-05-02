@@ -384,19 +384,20 @@ export function ChartWorkbench({
         return
       }
       const m = mainSeriesRef.current
-      const d = param.seriesData.get(m) as
-        | { open: number; high: number; low: number; close: number; value?: number }
+      const raw = param.seriesData.get(m) as
+        | Partial<{ open: number; high: number; low: number; close: number; value: number }>
         | undefined
-      if (!d) {
+      if (!raw) {
         setHover(null)
         return
       }
       const idx = bars.findIndex((b) => (b.t as number) === (param.time as number))
       const v = idx >= 0 ? bars[idx].v : 0
-      const o = "open" in d ? d.open : (d.value as number)
-      const h = "high" in d ? d.high : (d.value as number)
-      const l = "low" in d ? d.low : (d.value as number)
-      const c = "close" in d ? d.close : (d.value as number)
+      const fallback = raw.value ?? raw.close ?? 0
+      const o = raw.open ?? fallback
+      const h = raw.high ?? fallback
+      const l = raw.low ?? fallback
+      const c = raw.close ?? fallback
       setHover({ o, h, l, c, v, t: param.time as number })
     }
     chart.subscribeCrosshairMove(handler)
